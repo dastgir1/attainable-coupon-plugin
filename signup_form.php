@@ -51,41 +51,51 @@ if ($mform->is_cancelled()) {
     // Create a new user object.
     $user = new stdClass();
     $user->auth = 'coupon';
-    $user->confirmed = 1;
+    $user->confirmed  = 1;
     $user->mnethostid = 1;
+    $user->maildisplay = 1;
     $user->firstname = $fromform->firstname;
     $user->lastname = $fromform->lastname;
     $user->email = $fromform->email;
     $user->username = $fromform->email;
     $user->department = $record->companyname;
     $user->password = $fromform->password;
-
+    $user->lastlogin = time();
+    $user->currentlogin = time();
+    $user->country    = 'ES'; //Or another country
+    $user->lang       = 'en'; //Or another country
+    $user->timecreated = time();
+    $user->mailformat = 1;
     // Create the user.
     $newuserid = user_create_user($user);
 
     // Ensure the user object is retrieved from the database.
     if ($newuserid) {
-        $touser = \core_user::get_user($newuserid);
+        $toUser = \core_user::get_user($newuserid);
+        print_object($toUser);
+        exit;
+        $fromUser = \core_user::get_support_user();
+        $site = get_site();
+        $subject = "Welcome to {$site->fullname}";
+        $messagehtml = "Dear {$user->firstname},<br><br>";
+        $messagehtml .= "Welcome to {$site->fullname}! We are excited to have you with us. Your username is <strong>{$user->username}</strong>.and password={$password} Click <a href='{$CFG->wwwroot}/login/index.php'>here</a> to login.<br><br>";
+        $messagehtml .= "Best regards,<br>";
+        $messagehtml .= "{$site->fullname} team";
 
-        // Ensure the support user exists.
-        $fromuser = \core_user::get_support_user();
+        $messagetext = html_to_text($messagehtml);
 
-        // Define the email subject and body.
-        $subject = get_string('emailuser_subject', 'auth_coupon');
-        $bodyhtml = get_string('emailuser_bodyhtml', 'auth_coupon', [
-            'username'  => $user->email,
-            'password'  => $fromform->password,
-            'firstname' => $user->firstname,
-            'lastname'  => $user->lastname,
-        ]);
-        $email = email_to_user($touser, $fromuser, $subject, $bodyhtml, $bodyhtml);
-        if ($email) {
+        // $mailSent = email_to_user($user, $supportuser, $subject, $messagetext, $messagehtml);
+        $mailSent = email_to_user($toUser, $fromUser, $subject, $messagetext, $messagehtml, '', '', false);
+
+        // Check if the email was sent successfully
+        $returnurl = new moodle_url('/login/index.php');
+        if ($mailSent) {
             echo get_string('emailsend', 'auth_coupon');
         } else {
             echo get_string('emailnotsend', 'auth_coupon');
         }
 
-        $returnurl = new moodle_url('/login/index.php');
+
         // Confirmation of Account Creation
         notice(get_string('account_created', 'auth_coupon'), $returnurl);
     } else {

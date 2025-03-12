@@ -102,8 +102,6 @@ class signup_form extends \moodleform
         $errors = parent::validation($data, $files);
         global $DB;
 
-
-
         // Check if password and confirm password match.
         if ($data['password'] !== $data['confirmpassword']) {
             $errors['confirmpassword'] = get_string('incorrect_confirm_password', 'auth_coupon');

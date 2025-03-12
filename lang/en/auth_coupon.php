@@ -56,17 +56,8 @@ $string['emailconfirm'] = 'Email confirm';
 $string['emailconfirmsent'] = 'emailconfirmsent';
 $string['auth_emailnoemail'] = 'The email field is missing or invalid. Please provide a valid email address.';
 // Coupon Emails
-$string['emailuser_subject']            = 'Bienvenue sur HedAcademy - Détails de votre compte';
-$string['emailuser_bodyhtml']           = '<div style="padding:0 12%;"><br>
-                                            Bienvenue {$a->firstname} {$a->lastname},<br><br>
-                                            Nous sommes ravis de vous accueillir sur la plateforme Hedacademy ! Votre inscription a été complétée avec succès.<br><br>
-                                            Voici vos informations de connexion:<br>
-                                            - Nom d\'utilisateur: {$a->username}<br>
-                                            - Mot de passe: {$a->password} (Nous vous recommandons de modifier ce mot de passe lors de votre première connexion pour des raisons de sécurité).<br><br>
-                                            Commencez à explorer tous les cours dès à présent et découvrez comment Hedacademy va vous aider à progresser en mathématiques.<br><br>
-                                            Si vous avez des questions, n\'hésitez pas à nous contacter.<br><br>
-                                            Cordialement,<br>
-                                            HedAcademy</div>';
+$string['subject']            = 'Welcome to Attainable - Your Account Details';
+$string['message']           = 'Please login with your detail and change your password.';
 $string['couponform'] = 'Coupon Form';
 $string['notes'] = 'Notes';
 $string['notes_help'] = 'Notes';
@@ -90,4 +81,11 @@ $string['deletecoupon'] = 'Delete coupon';
 $string['auth_coupondescription'] = 'Coupon Description';
 $string['accountnotcreated'] = 'Oops some thing went wrong account is not created';
 $string['emailsend'] = 'Email send successfully';
-$string['emailnotsend'] = 'Email not send';
+$string['emailnotsend'] = 'Failed to send email';
+$string['welcome_subject'] = 'Welcome to Moodle!';
+
+$string['emailsend'] = 'Your account has been created and a confirmation Email has been sent to you please confirm your account and login with your credential.';
+$string['emailnotsend'] = 'Failed to send email. Please contact support.';
+$string['account_created'] = 'Your account has been created successfully.';
+$string['accountnotcreated'] = 'Account creation failed. Please try again.';
+$string['invalid_coupon'] = 'The coupon code you entered is invalid.';

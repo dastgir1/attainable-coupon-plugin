@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'auth_coupon';
 $plugin->release      = '1.0';
-$plugin->version      = 2025011401;
+$plugin->version      = 2025011403;
 $plugin->requires     = 2023100900;
 $plugin->supported    = [403, 405];
 $plugin->maturity     = MATURITY_STABLE;

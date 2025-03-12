@@ -37,17 +37,29 @@ require_once($CFG->libdir . '/authlib.php');
  */
 class auth_plugin_coupon extends auth_plugin_base
 {
-
     /**
      * Constructor.
      */
     public function __construct()
     {
         $this->authtype = 'coupon';
+        $this->config = get_config('auth_coupon');
     }
+
+
     public function user_signup_url()
     {
-        return new moodle_url('/auth/coupon/signup.php');
+        return new moodle_url('/auth/coupon/signup_form.php');
+    }
+    /**
+     * Old syntax of class constructor. Deprecated in PHP7.
+     *
+     * @deprecated since Moodle 3.1
+     */
+    public function auth_plugin_coupon()
+    {
+        debugging('Use of class name as constructor is deprecated', DEBUG_DEVELOPER);
+        self::__construct();
     }
     /**
      * Return a form to capture user details for account creation.
@@ -58,6 +70,7 @@ class auth_plugin_coupon extends auth_plugin_base
     {
         return new \auth_coupon\signup_form(null, null, 'post', '', array('autocomplete' => 'on'));
     }
+
     /**
      * Returns true if the username and password work and false if they are
      * wrong or don't exist.
@@ -144,7 +157,36 @@ class auth_plugin_coupon extends auth_plugin_base
             'userid' => $user->id,
             'couponid' => $result->id
         ));
+        // Ensure the user object is retrieved from the database.
+        if ($user->id) {
+            $toUser = \core_user::get_user($user->id);
 
+            $fromUser = \core_user::get_support_user();
+            $site = get_site();
+            $subject = "Welcome to {$site->fullname}";
+            $messagehtml = "Dear {$user->firstname},<br><br>";
+            $messagehtml .= "Welcome to {$site->fullname}! We are excited to have you with us. Your username is <strong>{$user->username}</strong>.and password={$user->password} Click
+             <a href='{$CFG->wwwroot}/login/index.php'>here</a> to login.<br><br>";
+            $messagehtml .= "Best regards,<br>";
+            $messagehtml .= "{$site->fullname} team";
+
+            $messagetext = html_to_text($messagehtml);
+
+            // $mailSent = email_to_user($user, $supportuser, $subject, $messagetext, $messagehtml);
+            $mailSent = email_to_user($toUser, $fromUser, $subject, $messagetext, $messagehtml);
+
+            // Check if the email was sent successfully
+            $returnurl = new moodle_url('/login/index.php');
+            if ($mailSent) {
+                // echo get_string('emailsend', 'auth_coupon');
+                notice(get_string('emailsend', 'auth_coupon'), $returnurl);
+            } else {
+                notice(get_string('emailnotsend', 'auth_coupon'), $returnurl);
+                // echo get_string('emailnotsend', 'auth_coupon');
+            }
+        } else {
+            notice(get_string('accountnotcreated', 'auth_coupon'), $returnurl);
+        }
         // IOMAD.
         // Get coupon record.
         $coupon = $DB->get_record_sql("SELECT * FROM {auth_coupon} WHERE code LIKE ?", array($user->coupon));
@@ -194,6 +236,15 @@ class auth_plugin_coupon extends auth_plugin_base
         }
     }
     /**
+     * Returns true if plugin allows confirming of new users.
+     *
+     * @return bool
+     */
+    function can_confirm()
+    {
+        return true;
+    }
+    /**
      * Confirm the new user as registered.
      *
      * @param string $username
@@ -223,6 +274,19 @@ class auth_plugin_coupon extends auth_plugin_base
         } else {
             return AUTH_CONFIRM_ERROR;
         }
+    }
+    function prevent_local_passwords()
+    {
+        return false;
+    }
+    /**
+     * Returns true if this authentication plugin is 'internal'.
+     *
+     * @return bool
+     */
+    function is_internal()
+    {
+        return true;
     }
     /**
      * Returns true if this authentication plugin can change the user's
@@ -262,14 +326,5 @@ class auth_plugin_coupon extends auth_plugin_base
     function is_captcha_enabled()
     {
         return get_config("auth_{$this->authtype}", 'recaptcha');
-    }
-    /**
-     * Returns true if plugin allows confirming of new users.
-     *
-     * @return bool
-     */
-    function can_confirm()
-    {
-        return true;
     }
 }
